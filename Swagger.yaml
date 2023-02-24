@@ -1,0 +1,220 @@
+openapi: 3.0.3
+info:
+  title: Swagger Virtual Cards
+  version: "1.0"
+servers:
+  - url: localhost:8080/virtualCards
+paths:
+  /getAllCards:
+    get:
+      summary: Get Virtual Cards
+      operationId: getVirtualCards
+      parameters:
+        - name: Authorization
+          in: header
+          description: Authorization
+          required: true
+          schema:
+            type: string
+        - name: Accept
+          in: header
+          description: Accept Header with API Version
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllVirtualCards'
+        '401':
+          description: Authorization header has expired or is missing
+        '406':
+          description: Accept header missing
+        '400':
+          description: Bad Request
+  /{cardId}/getAllTransactions:
+    get:
+      summary: Get Transactions by Card Id
+      operationId: getAllTransactions
+      parameters:
+        - name: Authorization
+          in: header
+          description: Authorization
+          required: true
+          schema:
+            type: string
+        - name: Accept
+          in: header
+          description: Accept Header with API Version
+          required: true
+          schema:
+            type: string
+        - name: cardId
+          in: path
+          description: Card Id
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: status, default PENDING, can be PENDING, DECLINED, CLEARED
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transactions'
+        '401':
+          description: Authorization header has expired or is missing
+        '406':
+          description: Accept header missing
+        '400':
+          description: Bad Request
+  /getTransaction:
+    get:
+      summary: Get Transaction By Transaction Id
+      operationId: getTransactionByTransactionId
+      parameters:
+        - name: Authorization
+          in: header
+          description: Authorization
+          required: true
+          schema:
+            type: string
+        - name: Accept
+          in: header
+          description: Accept Header with API Version
+          required: true
+          schema:
+            type: string
+        - name: transactionId
+          in: query
+          description: Transaction Id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionDetails'
+        '401':
+          description: Authorization header has expired or is missing
+        '406':
+          description: Accept header missing
+        '400':
+          description: Bad Request
+components:
+  schemas:
+    VirtualCard:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+        recipient:
+          type: object
+          properties:
+            id:
+              type: string
+            firstName:
+              type: string
+            lastName:
+              type: string
+        expires:
+          type: string
+        currency:
+          type: string
+        limitCents:
+          type: integer
+        balanceCents:
+          type: integer
+        spentCents:
+          type: integer
+        last4:
+          type: string
+        remainingBalanceDollars:
+          type: string
+    AllVirtualCards:
+      type: object
+      properties:
+        virtualCards:
+          type: array
+          items:
+            $ref: '#/components/schemas/VirtualCard'
+    Transactions:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+            - PENDING
+            - CLEARED
+            - DECLINED
+        authBillingAmountCents:
+          type: integer
+        merchantName:
+          type: string
+        billingAmountDollars:
+          type: string
+    TransactionDetails:
+      allOf:
+        - $ref: '#/components/schemas/Transactions'
+        - properties:
+            transactionId:
+              type: string
+            recipientId:
+              type: string
+            nameOnCard:
+              type: string
+            source:
+              type: string
+            vcnLast4:
+              type: string
+            type:
+              type: string
+            authBillingCurrency:
+              type: string
+            mccGroup:
+              type: string
+              enum:
+                - AIRLINE
+                - ENTERTAINMENT
+                - ASSOCIATIONS
+                - AUTOMOBILES
+                - BUSINESS
+                - CAR_RENTAL
+                - EDUCATION
+                - FINANCIAL
+                - GAS
+                - GOVERNMENT
+                - LODGING
+                - MAIL_PHONE_ORDER
+                - PERSONAL
+                - PROFESSIONAL
+                - REPAIR
+                - RESTAURANTS
+                - RETAIL
+                - TELECOM
+                - TRANSPORTATION
+                - UTILITIES
+                - WHOLESALE
+                - OTHER
+            mccDescription:
+              type: string
+            authedAt:
+              type: string
